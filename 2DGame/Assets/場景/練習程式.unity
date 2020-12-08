@@ -296,7 +296,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f481a1c12bdfef54cbc18789e6e5e6e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: 100
-  weight: 1.5
+  size: 150
+  weight: 0.9
   brand: BMW
   hasWindow: 1
+  colorA: {r: 0, g: 0, b: 1, a: 1}
+  colorB: {r: 0.5, g: 0.3, b: 0, a: 1}
+  colorC: {r: 1, g: 0, b: 0, a: 0.5}
+  v2A: {x: 0, y: 0}
+  v2B: {x: 1, y: 1}
+  v2C: {x: 1.5, y: 99.9}
+  v3A: {x: 1, y: 2, z: 3}
+  v4A: {x: 1, y: 2, z: 3, w: 4}
+  soundExplosion: {fileID: 0}
+  spriteA: {fileID: 0}
+  goA: {fileID: 417836270}
+  goB: {fileID: 185633683461726938, guid: d10fb031137fba049aa3ea2096f97237, type: 3}
+  tra: {fileID: 417836273}
+  cam: {fileID: 417836272}
