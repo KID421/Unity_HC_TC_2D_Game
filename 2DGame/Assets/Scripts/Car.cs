@@ -58,4 +58,18 @@ public class Car : MonoBehaviour
     // 元件：屬性面板上的粗體字
     public Transform tra;
     public Camera cam;
+
+    // 事件：開始事件 - 播放後執行一次
+    private void Start()
+    {
+        print("哈囉，沃德~");
+
+        // 取得 欄位 (抓出資料)
+        print(size);
+        print(brand);
+
+        // 設定 欄位 (修改資料)
+        weight = 1.3f;
+        hasWindow = false;
+    }
 }
