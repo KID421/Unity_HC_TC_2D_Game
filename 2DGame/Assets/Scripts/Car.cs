@@ -94,6 +94,12 @@ public class Car : MonoBehaviour
 
         MethodC(7);
         MethodC(100);
+
+        float b = BMI(60, 1.64f);
+        print("我的 BMI：" + b);
+
+        float b1 = BMI(100, 1.9f);
+        print("其他 BMI：" + b1);
     }
     #endregion
 
@@ -134,6 +140,14 @@ public class Car : MonoBehaviour
     {
         number += 10;
         print("累加後的數字：" + number);
+    }
+
+    // 參數數量無上限
+    private float BMI(float w, float h)
+    {
+        float bmi = w / (h * h);
+
+        return bmi;
     }
     #endregion
 }
