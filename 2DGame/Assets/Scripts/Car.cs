@@ -91,6 +91,9 @@ public class Car : MonoBehaviour
 
         Vector3 v123 = V123();
         print("三維向量 123：" + v123);
+
+        MethodC(7);
+        MethodC(100);
     }
     #endregion
 
@@ -127,5 +130,10 @@ public class Car : MonoBehaviour
         return new Vector3(1, 2, 3);
     }
 
+    private void MethodC(int number)
+    {
+        number += 10;
+        print("累加後的數字：" + number);
+    }
     #endregion
 }
