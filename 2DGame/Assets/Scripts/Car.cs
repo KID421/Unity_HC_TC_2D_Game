@@ -79,6 +79,12 @@ public class Car : MonoBehaviour
         // 呼叫方法語法：自訂方法名稱()；
         MethodA();
         MethodA();
+
+        // 區域變數
+        // 類型 區域變數名稱 指定 值
+        // 僅限於此區塊使用 (大括號)
+        int intA = MethodB();
+        print(intA);
     }
     #endregion
 
@@ -94,6 +100,14 @@ public class Car : MonoBehaviour
     private void MethodA()
     {
         print("嗨，我是方法 A~");
+    }
+
+    // 如果不是無傳回
+    // 必須使用關鍵字 return 傳回
+    // 而且必須在 return 後 加上傳回類型的資料
+    private int MethodB()
+    {
+        return 123;
     }
 
     #endregion
