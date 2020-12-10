@@ -2,6 +2,7 @@
 
 public class Car : MonoBehaviour
 {
+    #region 欄位
     // 單行註解 (說明)
     // 數值 = 欄位 Field
     // 語法：
@@ -58,7 +59,9 @@ public class Car : MonoBehaviour
     // 元件：屬性面板上的粗體字
     public Transform tra;
     public Camera cam;
+    #endregion
 
+    #region 事件
     // 事件：開始事件 - 播放後執行一次
     private void Start()
     {
@@ -72,4 +75,20 @@ public class Car : MonoBehaviour
         weight = 1.3f;
         hasWindow = false;
     }
+    #endregion
+
+    #region 方法
+    // 欄位語法：
+    // 修飾詞 類型 欄位名稱 指定 值；
+    
+    // 方法語法：
+    // 修飾詞 傳回類型 方法名稱 () {}
+    // 無傳回類型 void - 沒有任何傳回資料
+    private void MethodA()
+    {
+
+    }
+
+
+    #endregion
 }
