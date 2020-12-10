@@ -84,7 +84,13 @@ public class Car : MonoBehaviour
         // 類型 區域變數名稱 指定 值
         // 僅限於此區塊使用 (大括號)
         int intA = MethodB();
-        print(intA);
+        print("傳回整數：" + intA);
+
+        float pi = PI();
+        print("拍：" + pi);
+
+        Vector3 v123 = V123();
+        print("三維向量 123：" + v123);
     }
     #endregion
 
@@ -102,12 +108,23 @@ public class Car : MonoBehaviour
         print("嗨，我是方法 A~");
     }
 
+    // 有傳回 方法
     // 如果不是無傳回
     // 必須使用關鍵字 return 傳回
     // 而且必須在 return 後 加上傳回類型的資料
     private int MethodB()
     {
         return 123;
+    }
+
+    private float PI()
+    {
+        return 3.14f;
+    }
+
+    private Vector3 V123()
+    {
+        return new Vector3(1, 2, 3);
     }
 
     #endregion
