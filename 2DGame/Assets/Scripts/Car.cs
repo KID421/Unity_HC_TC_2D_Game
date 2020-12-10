@@ -74,21 +74,27 @@ public class Car : MonoBehaviour
         // 設定 欄位 (修改資料)
         weight = 1.3f;
         hasWindow = false;
+
+        // 呼叫自訂方法
+        // 呼叫方法語法：自訂方法名稱()；
+        MethodA();
+        MethodA();
     }
     #endregion
 
     #region 方法
     // 欄位語法：
     // 修飾詞 類型 欄位名稱 指定 值；
-    
+
     // 方法語法：
     // 修飾詞 傳回類型 方法名稱 () {}
     // 無傳回類型 void - 沒有任何傳回資料
+    // 自訂方法
+    // ※ 必須被呼叫才會執行
     private void MethodA()
     {
-
+        print("嗨，我是方法 A~");
     }
-
 
     #endregion
 }
