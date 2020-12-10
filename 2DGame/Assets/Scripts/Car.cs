@@ -100,6 +100,10 @@ public class Car : MonoBehaviour
 
         float b1 = BMI(100, 1.9f);
         print("其他 BMI：" + b1);
+
+        Drive(150);
+        Drive(90);
+        Drive(10, "後方");
     }
     #endregion
 
@@ -148,6 +152,20 @@ public class Car : MonoBehaviour
         float bmi = w / (h * h);
 
         return bmi;
+    }
+
+    // 參數的預設值
+    // 語法：參數類型 參數名稱 指定 值
+    // 必須放在右邊
+    /// <summary>
+    /// 開車功能
+    /// </summary>
+    /// <param name="speed">時速</param>
+    /// <param name="direction">方向</param>
+    private void Drive(int speed, string direction = "前方")
+    {
+        print("時數：" + speed);
+        print("方向：" + direction);
     }
     #endregion
 }
