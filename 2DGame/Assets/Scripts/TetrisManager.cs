@@ -17,4 +17,41 @@ public class TetrisManager : MonoBehaviour
     public AudioClip soundMove;
     public AudioClip soundClear;
     public AudioClip soundLose;
+
+    /// <summary>
+    /// 生成俄羅斯方塊
+    /// </summary>
+    private void SpawnTetris()
+    {
+
+    }
+
+    /// <summary>
+    /// 添加分數
+    /// </summary>
+    /// <param name="add">要添加的分數</param>
+    public void AddScore(int add)
+    {
+
+    }
+
+    private void GameTime()
+    {
+
+    }
+
+    private void GameOver()
+    {
+
+    }
+
+    public void ReplayGame()
+    {
+
+    }
+
+    public void QuitGame()
+    {
+
+    }
 }
