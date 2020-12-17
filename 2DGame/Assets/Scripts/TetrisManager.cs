@@ -29,14 +29,14 @@ public class TetrisManager : MonoBehaviour
 
     private void Start()
     {
-        SpawnTetris();
+        RandomTetris();
     }
 
     /// <summary>
     /// 生成俄羅斯方塊
     /// 1. 隨機顯示一個下一顆俄羅斯方塊 0 - 6
     /// </summary>
-    private void SpawnTetris()
+    private void RandomTetris()
     {
         // 下一顆編號 = 隨機 的 範圍(最小，最大) - 整數不會等於最大值
         indexNext = Random.Range(0, 7);
@@ -52,6 +52,7 @@ public class TetrisManager : MonoBehaviour
     /// </summary>
     public void StartGame()
     {
+        // 1. 生成俄羅斯方塊要放在正確位置
         // 保存上一次的俄羅斯方塊
         GameObject tetris = traNextArea.GetChild(indexNext).gameObject;
         // 目前俄羅斯方塊 = 生成物件(物件，父物件)
@@ -60,6 +61,11 @@ public class TetrisManager : MonoBehaviour
         // <T> 泛型 - 指的是所有類型
         // 目前俄羅斯方塊 . 取得元件<介面變形>() . 座標 = 二維向量
         current.GetComponent<RectTransform>().anchoredPosition = new Vector2(40, 400);
+
+        // 2. 上一次俄羅斯方塊隱藏
+        tetris.SetActive(false);
+        // 3. 隨機取得下一個
+        RandomTetris();
     }
 
     /// <summary>
