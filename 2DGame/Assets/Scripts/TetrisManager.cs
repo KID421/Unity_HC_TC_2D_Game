@@ -19,6 +19,8 @@ public class TetrisManager : MonoBehaviour
     public AudioClip soundLose;
     [Header("下一個俄羅斯方塊區域")]
     public Transform traNextArea;
+    [Header("畫布")]
+    public Transform traCanvas;
 
     /// <summary>
     /// 下一顆俄羅斯方塊編號
@@ -52,8 +54,12 @@ public class TetrisManager : MonoBehaviour
     {
         // 保存上一次的俄羅斯方塊
         GameObject tetris = traNextArea.GetChild(indexNext).gameObject;
-        // 生成物件(物件)
-        Instantiate(tetris);
+        // 目前俄羅斯方塊 = 生成物件(物件，父物件)
+        GameObject current = Instantiate(tetris, traCanvas);
+        // GetComponent<任何元件>()
+        // <T> 泛型 - 指的是所有類型
+        // 目前俄羅斯方塊 . 取得元件<介面變形>() . 座標 = 二維向量
+        current.GetComponent<RectTransform>().anchoredPosition = new Vector2(40, 400);
     }
 
     /// <summary>
