@@ -19,11 +19,23 @@ public class TetrisManager : MonoBehaviour
     public AudioClip soundLose;
 
     /// <summary>
+    /// 下一顆俄羅斯方塊編號
+    /// </summary>
+    public int indexNext;
+
+    private void Start()
+    {
+        SpawnTetris();
+    }
+
+    /// <summary>
     /// 生成俄羅斯方塊
+    /// 1. 隨機顯示一個下一顆俄羅斯方塊 0 - 6
     /// </summary>
     private void SpawnTetris()
     {
-
+        // 下一顆編號 = 隨機 的 範圍(最小，最大) - 整數不會等於最大值
+        indexNext = Random.Range(0, 7);
     }
 
     /// <summary>
