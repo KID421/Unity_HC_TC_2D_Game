@@ -27,9 +27,40 @@ public class TetrisManager : MonoBehaviour
     /// </summary>
     public int indexNext;
 
+    /// <summary>
+    /// 目前俄羅斯方塊
+    /// </summary>
+    public RectTransform currentTetris;
+
+    /// <summary>
+    /// 計時器
+    /// </summary>
+    public float timer;
+
+    // 開始事件：開始時候執行一次
     private void Start()
     {
         RandomTetris();
+    }
+
+    // 更新事件：一秒執行約 60 次
+    private void Update()
+    {
+        ControlTertis();
+    }
+
+    /// <summary>
+    /// 控制俄羅斯方塊
+    /// </summary>
+    private void ControlTertis()
+    {
+        timer += Time.deltaTime;        // 計時器 累加 一幀的時間 - 累加時間
+
+        if (timer >= timeFall)
+        {
+            timer = 0;
+            currentTetris.anchoredPosition -= new Vector2(0, 50);
+        }
     }
 
     /// <summary>
@@ -60,12 +91,15 @@ public class TetrisManager : MonoBehaviour
         // GetComponent<任何元件>()
         // <T> 泛型 - 指的是所有類型
         // 目前俄羅斯方塊 . 取得元件<介面變形>() . 座標 = 二維向量
-        current.GetComponent<RectTransform>().anchoredPosition = new Vector2(40, 400);
+        current.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 400);
 
         // 2. 上一次俄羅斯方塊隱藏
         tetris.SetActive(false);
         // 3. 隨機取得下一個
         RandomTetris();
+
+        // 將生成的俄羅斯方塊 RectTransform 元件儲存
+        currentTetris = current.GetComponent<RectTransform>();
     }
 
     /// <summary>
