@@ -65,23 +65,46 @@ public class TetrisManager : MonoBehaviour
                 currentTetris.anchoredPosition -= new Vector2(0, 50);
             }
 
-            // 或者 ||
-            // 按下 D 或者 右鍵 往右 50 
-            if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
+            #region 控制俄羅斯方塊 左右、旋轉與加速
+            // 如果 X 座標 小於 280 才能往右移動
+            if (currentTetris.anchoredPosition.x < 280)
             {
-                currentTetris.anchoredPosition += new Vector2(50, 0);
+                // 或者 ||
+                // 按下 D 或者 右鍵 往右 50 
+                if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
+                {
+                    currentTetris.anchoredPosition += new Vector2(20, 0);
+                }
             }
+            
             // 按下 A 或者 左鍵 往右 50 
             if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
             {
-                currentTetris.anchoredPosition -= new Vector2(50, 0);
+                currentTetris.anchoredPosition -= new Vector2(20, 0);
             }
 
             // 按下 W 逆時針轉 90 度
-            if (Input.GetKeyDown(KeyCode.W))
+            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
             {
                 // 屬性面板上面的 rotation 必須用 eulerAngles 控制
                 currentTetris.eulerAngles += new Vector3(0, 0, 90);
+            }
+            // 如果 玩家 按住 S 就加速
+            if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+            {
+                timeFall = 0.2f;
+            }
+            // 否則 就恢復速度
+            else
+            {
+                timeFall = 1.5f;
+            }
+            #endregion
+
+            // 如果 目前俄羅斯方塊 Y 軸 等於 -300 就 叫下一顆
+            if (currentTetris.anchoredPosition.y == -300)
+            {
+                StartGame();
             }
         }
     }
