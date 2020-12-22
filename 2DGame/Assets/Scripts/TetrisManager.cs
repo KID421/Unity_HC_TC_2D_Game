@@ -25,17 +25,17 @@ public class TetrisManager : MonoBehaviour
     /// <summary>
     /// 下一顆俄羅斯方塊編號
     /// </summary>
-    public int indexNext;
+    private int indexNext;
 
     /// <summary>
     /// 目前俄羅斯方塊
     /// </summary>
-    public RectTransform currentTetris;
+    private RectTransform currentTetris;
 
     /// <summary>
     /// 計時器
     /// </summary>
-    public float timer;
+    private float timer;
 
     // 開始事件：開始時候執行一次
     private void Start()
@@ -54,12 +54,35 @@ public class TetrisManager : MonoBehaviour
     /// </summary>
     private void ControlTertis()
     {
-        timer += Time.deltaTime;        // 計時器 累加 一幀的時間 - 累加時間
-
-        if (timer >= timeFall)
+        // 如果 已經有 目前的俄羅斯方塊
+        if (currentTetris)
         {
-            timer = 0;
-            currentTetris.anchoredPosition -= new Vector2(0, 50);
+            timer += Time.deltaTime;        // 計時器 累加 一幀的時間 - 累加時間
+
+            if (timer >= timeFall)
+            {
+                timer = 0;
+                currentTetris.anchoredPosition -= new Vector2(0, 50);
+            }
+
+            // 或者 ||
+            // 按下 D 或者 右鍵 往右 50 
+            if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                currentTetris.anchoredPosition += new Vector2(50, 0);
+            }
+            // 按下 A 或者 左鍵 往右 50 
+            if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                currentTetris.anchoredPosition -= new Vector2(50, 0);
+            }
+
+            // 按下 W 逆時針轉 90 度
+            if (Input.GetKeyDown(KeyCode.W))
+            {
+                // 屬性面板上面的 rotation 必須用 eulerAngles 控制
+                currentTetris.eulerAngles += new Vector3(0, 0, 90);
+            }
         }
     }
 

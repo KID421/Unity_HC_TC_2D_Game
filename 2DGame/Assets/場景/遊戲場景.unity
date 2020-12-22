@@ -2464,7 +2464,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c754bd2798608d54f9f0894c140a9bba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeFall: 0.5
+  timeFall: 1.5
   score: 0
   scoreHight: 0
   lv: 1
@@ -2475,9 +2475,6 @@ MonoBehaviour:
   soundLose: {fileID: 0}
   traNextArea: {fileID: 328685867}
   traCanvas: {fileID: 775975415}
-  indexNext: 0
-  currentTetris: {fileID: 0}
-  timer: 0
 --- !u!1 &1904352466
 GameObject:
   m_ObjectHideFlags: 0
