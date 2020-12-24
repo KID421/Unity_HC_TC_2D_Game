@@ -77,8 +77,14 @@ public class TetrisManager : MonoBehaviour
             }
 
             #region 控制俄羅斯方塊 左右、旋轉與加速
+
+            // 取得 目前俄羅斯方塊的 Tetris 腳本
+            Tetris tetris = currentTetris.GetComponent<Tetris>();
+
             // 如果 X 座標 小於 280 才能往右移動
-            if (currentTetris.anchoredPosition.x < 280)
+            // if (currentTetris.anchoredPosition.x < 280)
+            // 如果 目前俄羅斯方塊 沒有 碰到右邊牆壁
+            if (!tetris.wallRight)
             {
                 // 或者 ||
                 // 按下 D 或者 右鍵 往右 50 
@@ -102,8 +108,11 @@ public class TetrisManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
             {
                 // 屬性面板上面的 rotation 必須用 eulerAngles 控制
-                currentTetris.eulerAngles += new Vector3Int(0, 0, 90);
-                
+                currentTetris.eulerAngles += new Vector3(0, 0, 90);
+
+                if (currentTetris.anchoredPosition.x > 0) currentTetris.anchoredPosition -= new Vector2(20, 0);
+                if (currentTetris.anchoredPosition.x < 0) currentTetris.anchoredPosition += new Vector2(20, 0);
+
             }
             // 如果 玩家 按住 S 就加速
             if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
@@ -117,7 +126,7 @@ public class TetrisManager : MonoBehaviour
             }
             #endregion
 
-            // 如果 目前俄羅斯方塊 Y 軸 等於 -300 就 叫下一顆
+            // 如果 目前俄羅斯方塊 Y 軸 等於 -280 就 叫下一顆
             if (currentTetris.anchoredPosition.y == -280)
             {
                 StartGame();
