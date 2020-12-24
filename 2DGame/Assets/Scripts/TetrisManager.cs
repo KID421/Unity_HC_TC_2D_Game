@@ -21,6 +21,17 @@ public class TetrisManager : MonoBehaviour
     public Transform traNextArea;
     [Header("畫布")]
     public Transform traCanvas;
+    [Header("生成的起始位置")]
+    public Vector2[] posSpawn =
+    {
+        new Vector2(20, 400),
+        new Vector2(20, 360),
+        new Vector2(0, 360),
+        new Vector2(0, 380),
+        new Vector2(0, 380),
+        new Vector2(20, 360),
+        new Vector2(20, 360)
+    };
 
     /// <summary>
     /// 下一顆俄羅斯方塊編號
@@ -62,7 +73,7 @@ public class TetrisManager : MonoBehaviour
             if (timer >= timeFall)
             {
                 timer = 0;
-                currentTetris.anchoredPosition -= new Vector2(0, 50);
+                currentTetris.anchoredPosition -= new Vector2(0, 40);
             }
 
             #region 控制俄羅斯方塊 左右、旋轉與加速
@@ -73,21 +84,26 @@ public class TetrisManager : MonoBehaviour
                 // 按下 D 或者 右鍵 往右 50 
                 if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
                 {
-                    currentTetris.anchoredPosition += new Vector2(20, 0);
+                    currentTetris.anchoredPosition += new Vector2(40, 0);
                 }
             }
-            
-            // 按下 A 或者 左鍵 往右 50 
-            if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
+            // 如果 X 座標 小於 280 才能往右移動
+            if (currentTetris.anchoredPosition.x > -280)
             {
-                currentTetris.anchoredPosition -= new Vector2(20, 0);
+                // 或者 ||
+                // 按下 D 或者 右鍵 往右 50 
+                if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
+                {
+                    currentTetris.anchoredPosition -= new Vector2(40, 0);
+                }
             }
 
             // 按下 W 逆時針轉 90 度
             if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
             {
                 // 屬性面板上面的 rotation 必須用 eulerAngles 控制
-                currentTetris.eulerAngles += new Vector3(0, 0, 90);
+                currentTetris.eulerAngles += new Vector3Int(0, 0, 90);
+                
             }
             // 如果 玩家 按住 S 就加速
             if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
@@ -102,7 +118,7 @@ public class TetrisManager : MonoBehaviour
             #endregion
 
             // 如果 目前俄羅斯方塊 Y 軸 等於 -300 就 叫下一顆
-            if (currentTetris.anchoredPosition.y == -300)
+            if (currentTetris.anchoredPosition.y == -280)
             {
                 StartGame();
             }
@@ -117,6 +133,7 @@ public class TetrisManager : MonoBehaviour
     {
         // 下一顆編號 = 隨機 的 範圍(最小，最大) - 整數不會等於最大值
         indexNext = Random.Range(0, 7);
+
         // 下一個俄羅斯方塊區域 . 取得子物件(子物件編號) . 轉為遊戲物件 . 啟動設定(顯示)
         traNextArea.GetChild(indexNext).gameObject.SetActive(true);
     }
@@ -136,8 +153,8 @@ public class TetrisManager : MonoBehaviour
         GameObject current = Instantiate(tetris, traCanvas);
         // GetComponent<任何元件>()
         // <T> 泛型 - 指的是所有類型
-        // 目前俄羅斯方塊 . 取得元件<介面變形>() . 座標 = 二維向量
-        current.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 400);
+        // 目前俄羅斯方塊 . 取得元件<介面變形>() . 座標 = 生成座標陣列[編號]
+        current.GetComponent<RectTransform>().anchoredPosition = posSpawn[indexNext];
 
         // 2. 上一次俄羅斯方塊隱藏
         tetris.SetActive(false);
