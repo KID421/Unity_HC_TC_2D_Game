@@ -17,9 +17,6 @@ public class Tetris : MonoBehaviour
     /// </summary>
     private void OnDrawGizmos()
     {
-        // 圖示 的 顏色
-        Gizmos.color = Color.red;
-
         // 將浮點數角度 轉為 整數 - 去小數點
         int z = (int)transform.eulerAngles.z;
 
@@ -28,13 +25,19 @@ public class Tetris : MonoBehaviour
             // 儲存目前長度
             length = length0;
             // 圖示 的 繪製射線(起點，方向 * 長度)
+            Gizmos.color = Color.red;
             Gizmos.DrawRay(transform.position, Vector3.right * length0);
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawRay(transform.position, -Vector3.right * length0);
         }
         else if (z == 90 || z == 270)
         {
             // 儲存目前長度
             length = length90;
+            Gizmos.color = Color.red;
             Gizmos.DrawRay(transform.position, Vector3.right * length90);
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawRay(transform.position, -Vector3.right * length90);
         }
     }
 
@@ -53,6 +56,10 @@ public class Tetris : MonoBehaviour
     /// 是否碰到右邊牆壁
     /// </summary>
     public bool wallRight;
+    /// <summary>
+    /// 是否碰到左邊牆壁
+    /// </summary>
+    public bool wallLeft;
 
     /// <summary>
     /// 檢查射線是否碰到牆壁
@@ -71,6 +78,20 @@ public class Tetris : MonoBehaviour
         else
         {
             wallRight = false;
+        }
+
+        // 2D 物理碰撞資訊 區域變數名稱 = 2D 物理.射線碰撞(起點，方向，長度，圖層)
+        RaycastHit2D hitL = Physics2D.Raycast(transform.position, -Vector3.right, length, 1 << 8);
+
+        // 並且 &&
+        // 如果 碰到東西 並且 名稱 為 牆壁：右邊
+        if (hitL && hitL.transform.name == "牆壁：左邊")
+        {
+            wallLeft = true;
+        }
+        else
+        {
+            wallLeft = false;
         }
     }
 }

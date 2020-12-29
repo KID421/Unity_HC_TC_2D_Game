@@ -254,6 +254,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   length0: 0.4
   length90: 1.2
+  length: 0.4
+  wallRight: 0
 --- !u!1 &8922595738080004449
 GameObject:
   m_ObjectHideFlags: 0

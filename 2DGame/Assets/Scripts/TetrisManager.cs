@@ -94,7 +94,9 @@ public class TetrisManager : MonoBehaviour
                 }
             }
             // 如果 X 座標 小於 280 才能往右移動
-            if (currentTetris.anchoredPosition.x > -280)
+            // if (currentTetris.anchoredPosition.x > -280)
+            // 如果 目前俄羅斯方塊 沒有 碰到左邊牆壁
+            if (!tetris.wallLeft)
             {
                 // 或者 ||
                 // 按下 D 或者 右鍵 往右 50 
@@ -109,10 +111,6 @@ public class TetrisManager : MonoBehaviour
             {
                 // 屬性面板上面的 rotation 必須用 eulerAngles 控制
                 currentTetris.eulerAngles += new Vector3(0, 0, 90);
-
-                if (currentTetris.anchoredPosition.x > 0) currentTetris.anchoredPosition -= new Vector2(20, 0);
-                if (currentTetris.anchoredPosition.x < 0) currentTetris.anchoredPosition += new Vector2(20, 0);
-
             }
             // 如果 玩家 按住 S 就加速
             if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
