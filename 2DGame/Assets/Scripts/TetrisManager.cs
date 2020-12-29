@@ -115,7 +115,7 @@ public class TetrisManager : MonoBehaviour
             // 如果 玩家 按住 S 就加速
             if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
             {
-                timeFall = 0.2f;
+                timeFall = 0.1f;
             }
             // 否則 就恢復速度
             else
@@ -124,8 +124,8 @@ public class TetrisManager : MonoBehaviour
             }
             #endregion
 
-            // 如果 目前俄羅斯方塊 Y 軸 等於 -280 就 叫下一顆
-            if (currentTetris.anchoredPosition.y == -280)
+            // 如果 俄羅斯方塊 碰到了地板 就重新開始 - 生成下一顆
+            if (tetris.wallDown)
             {
                 StartGame();
             }

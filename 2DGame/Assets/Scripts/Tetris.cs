@@ -6,11 +6,16 @@ public class Tetris : MonoBehaviour
     public float length0;
     [Header("角度為九十度，線條的長度")]
     public float length90;
+    [Header("旋轉位移左右")]
+    public int offsetX;
+    [Header("旋轉位移上下")]
+    public int offsetY;
 
     /// <summary>
     /// 紀錄目前長度
     /// </summary>
-    public float length;
+    private float length;
+    private float lengthDown;
 
     /// <summary>
     /// 繪製圖示
@@ -29,6 +34,10 @@ public class Tetris : MonoBehaviour
             Gizmos.DrawRay(transform.position, Vector3.right * length0);
             Gizmos.color = Color.yellow;
             Gizmos.DrawRay(transform.position, -Vector3.right * length0);
+            // 繪製向下線條
+            lengthDown = length90;
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawRay(transform.position, -Vector3.up * length90);
         }
         else if (z == 90 || z == 270)
         {
@@ -38,6 +47,10 @@ public class Tetris : MonoBehaviour
             Gizmos.DrawRay(transform.position, Vector3.right * length90);
             Gizmos.color = Color.yellow;
             Gizmos.DrawRay(transform.position, -Vector3.right * length90);
+            // 繪製向下線條
+            lengthDown = length0;
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawRay(transform.position, -Vector3.up * length0);
         }
     }
 
@@ -60,6 +73,10 @@ public class Tetris : MonoBehaviour
     /// 是否碰到左邊牆壁
     /// </summary>
     public bool wallLeft;
+    /// <summary>
+    /// 是否碰到下方地板
+    /// </summary>
+    public bool wallDown;
 
     /// <summary>
     /// 檢查射線是否碰到牆壁
@@ -67,11 +84,11 @@ public class Tetris : MonoBehaviour
     private void CheckWall()
     {
         // 2D 物理碰撞資訊 區域變數名稱 = 2D 物理.射線碰撞(起點，方向，長度，圖層)
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector3.right, length, 1 << 8);
+        RaycastHit2D hitR = Physics2D.Raycast(transform.position, Vector3.right, length, 1 << 8);
 
         // 並且 &&
         // 如果 碰到東西 並且 名稱 為 牆壁：右邊
-        if (hit && hit.transform.name == "牆壁：右邊")
+        if (hitR && hitR.transform.name == "牆壁：右邊")
         {
             wallRight = true;
         }
@@ -92,6 +109,20 @@ public class Tetris : MonoBehaviour
         else
         {
             wallLeft = false;
+        }
+
+        // 2D 物理碰撞資訊 區域變數名稱 = 2D 物理.射線碰撞(起點，方向，長度，圖層)
+        RaycastHit2D hitD = Physics2D.Raycast(transform.position, -Vector3.up, lengthDown, 1 << 9);
+
+        // 並且 &&
+        // 如果 碰到東西 並且 名稱 為 牆壁：右邊
+        if (hitD && hitD.transform.name == "地板")
+        {
+            wallDown = true;
+        }
+        else
+        {
+            wallDown = false;
         }
     }
 }
