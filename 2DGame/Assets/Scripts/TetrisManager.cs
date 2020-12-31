@@ -106,12 +106,20 @@ public class TetrisManager : MonoBehaviour
                 }
             }
 
+            // 如果 俄羅斯方塊 可以旋轉
             // 按下 W 逆時針轉 90 度
-            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+            if (tetris.canRotate)
             {
-                // 屬性面板上面的 rotation 必須用 eulerAngles 控制
-                currentTetris.eulerAngles += new Vector3(0, 0, 90);
+                if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+                {
+                    // 屬性面板上面的 rotation 必須用 eulerAngles 控制
+                    currentTetris.eulerAngles += new Vector3(0, 0, 90);
+
+                    tetris.Offset();
+                }
             }
+            
+            
             // 如果 玩家 按住 S 就加速
             if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
             {
@@ -132,6 +140,8 @@ public class TetrisManager : MonoBehaviour
         }
     }
 
+    private bool down;
+
     /// <summary>
     /// 生成俄羅斯方塊
     /// 1. 隨機顯示一個下一顆俄羅斯方塊 0 - 6
@@ -140,6 +150,9 @@ public class TetrisManager : MonoBehaviour
     {
         // 下一顆編號 = 隨機 的 範圍(最小，最大) - 整數不會等於最大值
         indexNext = Random.Range(0, 7);
+
+        // 測試
+        // indexNext = 0;
 
         // 下一個俄羅斯方塊區域 . 取得子物件(子物件編號) . 轉為遊戲物件 . 啟動設定(顯示)
         traNextArea.GetChild(indexNext).gameObject.SetActive(true);
