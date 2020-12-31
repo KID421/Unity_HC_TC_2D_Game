@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;   // 引用 系統.集合 API - 協同程序
 
 public class TetrisManager : MonoBehaviour
 {
@@ -19,8 +20,8 @@ public class TetrisManager : MonoBehaviour
     public AudioClip soundLose;
     [Header("下一個俄羅斯方塊區域")]
     public Transform traNextArea;
-    [Header("畫布")]
-    public Transform traCanvas;
+    [Header("生成俄羅斯方塊的父物件")]
+    public Transform traTetrisParent;
     [Header("生成的起始位置")]
     public Vector2[] posSpawn =
     {
@@ -58,6 +59,12 @@ public class TetrisManager : MonoBehaviour
     private void Update()
     {
         ControlTertis();
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            // 啟動協同程序(協同方法());
+            StartCoroutine(ShakeEffect());
+        }
     }
 
     /// <summary>
@@ -170,7 +177,7 @@ public class TetrisManager : MonoBehaviour
         // 保存上一次的俄羅斯方塊
         GameObject tetris = traNextArea.GetChild(indexNext).gameObject;
         // 目前俄羅斯方塊 = 生成物件(物件，父物件)
-        GameObject current = Instantiate(tetris, traCanvas);
+        GameObject current = Instantiate(tetris, traTetrisParent);
         // GetComponent<任何元件>()
         // <T> 泛型 - 指的是所有類型
         // 目前俄羅斯方塊 . 取得元件<介面變形>() . 座標 = 生成座標陣列[編號]
@@ -212,5 +219,26 @@ public class TetrisManager : MonoBehaviour
     public void QuitGame()
     {
 
+    }
+
+    // 協同程序
+    // IEnumerator 傳回類型 - 時間
+    private IEnumerator ShakeEffect()
+    {
+        // 取得震動效果物件的 Rect
+        RectTransform rect = traTetrisParent.GetComponent<RectTransform>();
+
+        // 晃動 向上 30 > 0 > 20 > 0
+        // 等待 0.05
+        float interval = 0.05f;
+
+        rect.anchoredPosition += Vector2.up * 30;
+        yield return new WaitForSeconds(interval);
+        rect.anchoredPosition = Vector2.zero;
+        yield return new WaitForSeconds(interval);
+        rect.anchoredPosition += Vector2.up * 20;
+        yield return new WaitForSeconds(interval);
+        rect.anchoredPosition = Vector2.zero;
+        yield return new WaitForSeconds(interval);
     }
 }
