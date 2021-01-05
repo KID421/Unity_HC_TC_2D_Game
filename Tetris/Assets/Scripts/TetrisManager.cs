@@ -92,7 +92,7 @@ public class TetrisManager : MonoBehaviour
             // 如果 X 座標 小於 280 才能往右移動
             // if (currentTetris.anchoredPosition.x < 280)
             // 如果 目前俄羅斯方塊 沒有 碰到右邊牆壁
-            if (!tetris.wallRight)
+            if (!tetris.wallRight && !tetris.smallRight)
             {
                 // 或者 ||
                 // 按下 D 或者 右鍵 往右 50 
@@ -143,7 +143,8 @@ public class TetrisManager : MonoBehaviour
             #endregion
 
             // 如果 俄羅斯方塊 碰到了地板 就重新開始 - 生成下一顆
-            if (tetris.wallDown)
+            // 或者 碰到其他方塊
+            if (tetris.wallDown || tetris.smallBottom)
             {
                 SetGround();                        // 設定為地板
                 StartGame();                        // 生成下一顆
@@ -153,7 +154,7 @@ public class TetrisManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 設定掉落後變為地板
+    /// 設定掉落後變為方塊
     /// </summary>
     private void SetGround()
     {
@@ -169,8 +170,8 @@ public class TetrisManager : MonoBehaviour
 
         for (int i = 0; i < count; i++)                             // 迴圈 執行 子物件數量次數
         {
-            currentTetris.GetChild(i).name = "地板";                // 名稱改為地板
-            currentTetris.GetChild(i).gameObject.layer = 9;         // 圖層改為地板
+            currentTetris.GetChild(i).name = "方塊";                // 名稱改為方塊
+            currentTetris.GetChild(i).gameObject.layer = 10;        // 圖層改為方塊
         }
     }
 
