@@ -252,13 +252,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9269d548cbc54f74bb9a76ab966c49f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  length0: 0.4
-  length90: 1.2
+  length0: 0.8
+  length90: 1.6
   offsetX: -20
   offsetY: 20
   lengthRotate0r: 1
   lengthRotate0l: 0.4
-  lengthRotate90: 0
+  lengthRotate90r: 0
+  lengthRotate90l: 0
   wallRight: 0
   wallLeft: 0
   wallDown: 0

@@ -158,7 +158,6 @@ public class Tetris : MonoBehaviour
         RaycastHit2D hitD = Physics2D.Raycast(transform.position, -Vector3.up, lengthDown, 1 << 9);
 
         // 並且 &&
-        // 如果 碰到東西 並且 名稱 為 牆壁：右邊
         if (hitD && hitD.transform.name == "地板")
         {
             wallDown = true;

@@ -3,6 +3,7 @@ using System.Collections;   // 引用 系統.集合 API - 協同程序
 
 public class TetrisManager : MonoBehaviour
 {
+    #region 欄位
     [Header("掉落時間"), Range(0.1f, 3)]
     public float timeFall = 1.5f;
     [Header("目前分數")]
@@ -38,17 +39,21 @@ public class TetrisManager : MonoBehaviour
     /// 下一顆俄羅斯方塊編號
     /// </summary>
     private int indexNext;
-
     /// <summary>
     /// 目前俄羅斯方塊
     /// </summary>
     private RectTransform currentTetris;
-
     /// <summary>
     /// 計時器
     /// </summary>
     private float timer;
+    /// <summary>
+    /// 是否快速落下
+    /// </summary>
+    private bool fastDown;
+    #endregion
 
+    #region 事件
     // 開始事件：開始時候執行一次
     private void Start()
     {
@@ -59,14 +64,11 @@ public class TetrisManager : MonoBehaviour
     private void Update()
     {
         ControlTertis();
-
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            // 啟動協同程序(協同方法());
-            StartCoroutine(ShakeEffect());
-        }
+        FastDown();
     }
+    #endregion
 
+    #region 方法：實作完成
     /// <summary>
     /// 控制俄羅斯方塊
     /// </summary>
@@ -84,7 +86,6 @@ public class TetrisManager : MonoBehaviour
             }
 
             #region 控制俄羅斯方塊 左右、旋轉與加速
-
             // 取得 目前俄羅斯方塊的 Tetris 腳本
             Tetris tetris = currentTetris.GetComponent<Tetris>();
 
@@ -125,29 +126,53 @@ public class TetrisManager : MonoBehaviour
                     tetris.Offset();
                 }
             }
-            
-            
-            // 如果 玩家 按住 S 就加速
-            if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+
+            if (!fastDown)          // 如果 沒有在快速落下 才能 加速
             {
-                timeFall = 0.1f;
-            }
-            // 否則 就恢復速度
-            else
-            {
-                timeFall = 1.5f;
+                // 如果 玩家 按住 S 就加速
+                if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+                {
+                    timeFall = 0.1f;
+                }
+                // 否則 就恢復速度
+                else
+                {
+                    timeFall = 1.5f;
+                }
             }
             #endregion
 
             // 如果 俄羅斯方塊 碰到了地板 就重新開始 - 生成下一顆
             if (tetris.wallDown)
             {
-                StartGame();
+                SetGround();                        // 設定為地板
+                StartGame();                        // 生成下一顆
+                StartCoroutine(ShakeEffect());      // 晃動效果
             }
         }
     }
 
-    private bool down;
+    /// <summary>
+    /// 設定掉落後變為地板
+    /// </summary>
+    private void SetGround()
+    {
+        /** 迴圈 for
+        // (初始值；條件；迭代器)
+        for (int i = 0; i < 10; i++)
+        {
+            print("迴圈：" + i);
+        }
+        */
+
+        int count = currentTetris.childCount;                       // 取得 目前 方塊 的子物件數量
+
+        for (int i = 0; i < count; i++)                             // 迴圈 執行 子物件數量次數
+        {
+            currentTetris.GetChild(i).name = "地板";                // 名稱改為地板
+            currentTetris.GetChild(i).gameObject.layer = 9;         // 圖層改為地板
+        }
+    }
 
     /// <summary>
     /// 生成俄羅斯方塊
@@ -173,6 +198,8 @@ public class TetrisManager : MonoBehaviour
     /// </summary>
     public void StartGame()
     {
+        fastDown = false;               // 碰到地板後，沒有快速落下
+
         // 1. 生成俄羅斯方塊要放在正確位置
         // 保存上一次的俄羅斯方塊
         GameObject tetris = traNextArea.GetChild(indexNext).gameObject;
@@ -192,6 +219,44 @@ public class TetrisManager : MonoBehaviour
         currentTetris = current.GetComponent<RectTransform>();
     }
 
+    // 協同程序
+    // IEnumerator 傳回類型 - 時間
+    private IEnumerator ShakeEffect()
+    {
+        // 取得震動效果物件的 Rect
+        RectTransform rect = traTetrisParent.GetComponent<RectTransform>();
+
+        // 晃動 向上 30 > 0 > 20 > 0
+        // 等待 0.05
+        float interval = 0.05f;
+
+        rect.anchoredPosition += Vector2.up * 30;
+        yield return new WaitForSeconds(interval);
+        rect.anchoredPosition = Vector2.zero;
+        yield return new WaitForSeconds(interval);
+        rect.anchoredPosition += Vector2.up * 20;
+        yield return new WaitForSeconds(interval);
+        rect.anchoredPosition = Vector2.zero;
+        yield return new WaitForSeconds(interval);
+    }
+    #endregion
+
+    /// <summary>
+    /// 快速掉落功能
+    /// </summary>
+    private void FastDown()
+    {
+        if (currentTetris && !fastDown)             // 如我 有 目前方塊 並且 還沒快速落下
+        {
+            if (Input.GetKeyDown(KeyCode.Space))    // 如果 按下 空白鍵
+            {
+                fastDown = true;                    // 正在快速落下
+                timeFall = 0.0178f;                 // 掉落時間
+            }
+        }
+    }
+
+    #region 方法：尚未實作
     /// <summary>
     /// 添加分數
     /// </summary>
@@ -220,25 +285,5 @@ public class TetrisManager : MonoBehaviour
     {
 
     }
-
-    // 協同程序
-    // IEnumerator 傳回類型 - 時間
-    private IEnumerator ShakeEffect()
-    {
-        // 取得震動效果物件的 Rect
-        RectTransform rect = traTetrisParent.GetComponent<RectTransform>();
-
-        // 晃動 向上 30 > 0 > 20 > 0
-        // 等待 0.05
-        float interval = 0.05f;
-
-        rect.anchoredPosition += Vector2.up * 30;
-        yield return new WaitForSeconds(interval);
-        rect.anchoredPosition = Vector2.zero;
-        yield return new WaitForSeconds(interval);
-        rect.anchoredPosition += Vector2.up * 20;
-        yield return new WaitForSeconds(interval);
-        rect.anchoredPosition = Vector2.zero;
-        yield return new WaitForSeconds(interval);
-    }
+    #endregion
 }
