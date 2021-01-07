@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;       // 引用介面 API
+using System.Linq;          // 查詢語言
 using System.Collections;   // 引用 系統.集合 API - 協同程序
 
 public class TetrisManager : MonoBehaviour
@@ -104,7 +106,7 @@ public class TetrisManager : MonoBehaviour
             // 如果 X 座標 小於 280 才能往右移動
             // if (currentTetris.anchoredPosition.x > -280)
             // 如果 目前俄羅斯方塊 沒有 碰到左邊牆壁
-            if (!tetris.wallLeft)
+            if (!tetris.wallLeft && !tetris.smallLeft)
             {
                 // 或者 ||
                 // 按下 D 或者 右鍵 往右 50 
@@ -147,6 +149,7 @@ public class TetrisManager : MonoBehaviour
             if (tetris.wallDown || tetris.smallBottom)
             {
                 SetGround();                        // 設定為地板
+                CheckTetris();                      // 檢查並開始消除判定
                 StartGame();                        // 生成下一顆
                 StartCoroutine(ShakeEffect());      // 晃動效果
             }
@@ -158,14 +161,6 @@ public class TetrisManager : MonoBehaviour
     /// </summary>
     private void SetGround()
     {
-        /** 迴圈 for
-        // (初始值；條件；迭代器)
-        for (int i = 0; i < 10; i++)
-        {
-            print("迴圈：" + i);
-        }
-        */
-
         int count = currentTetris.childCount;                       // 取得 目前 方塊 的子物件數量
 
         for (int i = 0; i < count; i++)                             // 迴圈 執行 子物件數量次數
@@ -173,6 +168,14 @@ public class TetrisManager : MonoBehaviour
             currentTetris.GetChild(i).name = "方塊";                // 名稱改為方塊
             currentTetris.GetChild(i).gameObject.layer = 10;        // 圖層改為方塊
         }
+
+        // 將俄羅斯方塊小方塊搬到 分數區域
+        for (int i = 0; i < count; i++)
+        {
+            currentTetris.GetChild(0).SetParent(traScoreArea);
+        }
+        // 刪除 父物件
+        Destroy(currentTetris.gameObject);
     }
 
     /// <summary>
@@ -255,6 +258,45 @@ public class TetrisManager : MonoBehaviour
                 timeFall = 0.0178f;                 // 掉落時間
             }
         }
+    }
+
+    [Header("分數判定區域")]
+    public Transform traScoreArea;
+
+    public RectTransform[] rectSmall;
+
+    /// <summary>
+    /// 檢查方塊是否連線
+    /// </summary>
+    private void CheckTetris()
+    {
+        rectSmall = new RectTransform[traScoreArea.childCount];                     // 指定數量跟子物件相同
+
+        for (int i = 0; i < traScoreArea.childCount; i++)                           // 利用迴圈將子物件儲存
+        {
+            rectSmall[i] = traScoreArea.GetChild(i).GetComponent<RectTransform>();
+        }
+
+        // 檢查有幾棵位置在 -300
+        var small = rectSmall.Where(x => x.anchoredPosition.y == -300);
+
+        if (small.ToArray().Length == 16)
+        {
+            RectTransform[] s = small.ToArray();
+            StartCoroutine(Shine(s));
+        }
+    }
+
+    private IEnumerable Shine(RectTransform[] smalls)
+    {
+        float interval = 0.05f;
+        for (int i = 0; i < 16; i++) smalls[i].GetComponent<Image>().enabled = false;
+        yield return new WaitForSeconds(interval);
+        for (int i = 0; i < 16; i++) smalls[i].GetComponent<Image>().enabled = true;
+        yield return new WaitForSeconds(interval);
+        for (int i = 0; i < 16; i++) smalls[i].GetComponent<Image>().enabled = false;
+        yield return new WaitForSeconds(interval);
+        for (int i = 0; i < 16; i++) smalls[i].GetComponent<Image>().enabled = true;
     }
 
     #region 方法：尚未實作

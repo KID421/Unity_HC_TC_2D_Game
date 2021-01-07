@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Linq;          // 引用 系統.查詢語言 API - 偵測陣列、清單內的資料
 
 public class Tetris : MonoBehaviour
 {
@@ -43,10 +44,30 @@ public class Tetris : MonoBehaviour
     public bool canRotate = true;
 
     private RectTransform rect;
-    #endregion
 
+    /// <summary>
+    /// 小方塊底部碰撞
+    /// </summary>
+    public bool smallBottom;
+    /// <summary>
+    /// 右邊是否有方塊
+    /// </summary>
+    public bool smallRight;
+    /// <summary>
+    /// 所有方塊右邊是否有其他方塊
+    /// </summary>
+    public bool[] smallRightAll;
+    /// <summary>
+    /// 左邊是否有方塊
+    /// </summary>
+    public bool smallLeft;
+    /// <summary>
+    /// 所有方塊左邊是否有其他方塊
+    /// </summary>
+    public bool[] smallLeftAll;
     [Header("每一顆小方塊的射線長度"), Range(0f, 2f)]
     public float smallLength = 0.5f;
+    #endregion
 
     #region 事件
     /// <summary>
@@ -111,6 +132,7 @@ public class Tetris : MonoBehaviour
         {
             Gizmos.color = Color.cyan;
             Gizmos.DrawRay(transform.GetChild(i).position, Vector2.right * smallLength);
+            Gizmos.DrawRay(transform.GetChild(i).position, Vector2.left * smallLength);
         }
         #endregion
     }
@@ -121,6 +143,10 @@ public class Tetris : MonoBehaviour
         length = length0;
 
         rect = GetComponent<RectTransform>();
+
+        // 偵測有己的子物件(小方塊) 就新增幾個陣列
+        smallRightAll = new bool[transform.childCount];
+        smallLeftAll = new bool[transform.childCount];
     }
 
     private void Update()
@@ -132,23 +158,33 @@ public class Tetris : MonoBehaviour
     #endregion
 
     /// <summary>
-    /// 小方塊底部碰撞
+    /// 檢查左邊與右邊是否有其他方塊
     /// </summary>
-    public bool smallBottom;
-
-    public bool smallRight;
-
     private void CheckLeftAndRight()
     {
         // 迴圈執行每一顆小方塊
         for (int i = 0; i < transform.childCount; i++)
         {
             // 每一顆小方塊 射線(每一顆小方塊的中心點，向下，長度，圖層)
-            RaycastHit2D hit = Physics2D.Raycast(transform.GetChild(i).position, Vector3.right, smallLength, 1 << 10);
+            RaycastHit2D hitR = Physics2D.Raycast(transform.GetChild(i).position, Vector3.right, smallLength, 1 << 10);
+            // 如果 右邊有方塊 就 將陣列對應的格子勾選
+            if (hitR && hitR.collider.name == "方塊") smallRightAll[i] = true;
+            else smallRightAll[i] = false;
 
-            if (hit && hit.collider.name == "方塊") smallRight = true;
-            else smallRight = false;
+            RaycastHit2D hitL = Physics2D.Raycast(transform.GetChild(i).position, Vector3.left, smallLength, 1 << 10);
+
+            if (hitL && hitL.collider.name == "方塊") smallLeftAll[i] = true;
+            else smallLeftAll[i] = false;
         }
+
+        // 檢查陣列內 等於 true 的資料
+        // 陣列.哪裡(代名詞 => 條件)
+        // var 無類型
+        var allRight = smallRightAll.Where(x => x == true);
+        smallRight = allRight.ToArray().Length > 0;
+
+        var allLeft = smallLeftAll.Where(x => x == true);
+        smallLeft = allLeft.ToArray().Length > 0;
     }
 
     /// <summary>
