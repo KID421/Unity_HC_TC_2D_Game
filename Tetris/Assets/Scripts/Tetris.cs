@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Linq;
 
 public class Tetris : MonoBehaviour
 {
@@ -121,6 +122,8 @@ public class Tetris : MonoBehaviour
         length = length0;
 
         rect = GetComponent<RectTransform>();
+
+        smallRightAll = new bool[transform.childCount];
     }
 
     private void Update()
@@ -138,6 +141,8 @@ public class Tetris : MonoBehaviour
 
     public bool smallRight;
 
+    public bool[] smallRightAll;
+
     private void CheckLeftAndRight()
     {
         // 迴圈執行每一顆小方塊
@@ -146,9 +151,15 @@ public class Tetris : MonoBehaviour
             // 每一顆小方塊 射線(每一顆小方塊的中心點，向下，長度，圖層)
             RaycastHit2D hit = Physics2D.Raycast(transform.GetChild(i).position, Vector3.right, smallLength, 1 << 10);
 
-            if (hit && hit.collider.name == "方塊") smallRight = true;
-            else smallRight = false;
+            if (hit && hit.collider.name == "方塊") smallRightAll[i] = true;
+            else smallRightAll[i] = false;
         }
+
+        var right = smallRightAll.Where(x => x == true);
+
+        smallRight = right.ToList().Count > 0;
+
+        print(right.ToList().Count);
     }
 
     /// <summary>
