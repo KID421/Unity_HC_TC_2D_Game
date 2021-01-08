@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;       // 引用介面 API
-using System.Linq;          // 查詢語言
-using System.Collections;   // 引用 系統.集合 API - 協同程序
+using UnityEngine.UI;                   // 引用介面 API
+using System.Linq;                      // 查詢語言
+using System.Collections;               // 引用 系統.集合 API - 協同程序
+using System.Collections.Generic;
 
 public class TetrisManager : MonoBehaviour
 {
@@ -149,7 +150,7 @@ public class TetrisManager : MonoBehaviour
             if (tetris.wallDown || tetris.smallBottom)
             {
                 SetGround();                        // 設定為地板
-                CheckTetris();                      // 檢查並開始消除判定
+                StartCoroutine(CheckTetris());      // 檢查並開始消除判定
                 StartGame();                        // 生成下一顆
                 StartCoroutine(ShakeEffect());      // 晃動效果
             }
@@ -174,6 +175,7 @@ public class TetrisManager : MonoBehaviour
         {
             currentTetris.GetChild(0).SetParent(traScoreArea);
         }
+
         // 刪除 父物件
         Destroy(currentTetris.gameObject);
     }
@@ -188,7 +190,7 @@ public class TetrisManager : MonoBehaviour
         indexNext = Random.Range(0, 7);
 
         // 測試
-        // indexNext = 0;
+        //indexNext = 0;
 
         // 下一個俄羅斯方塊區域 . 取得子物件(子物件編號) . 轉為遊戲物件 . 啟動設定(顯示)
         traNextArea.GetChild(indexNext).gameObject.SetActive(true);
@@ -262,41 +264,91 @@ public class TetrisManager : MonoBehaviour
 
     [Header("分數判定區域")]
     public Transform traScoreArea;
-
+    /// <summary>
+    /// 儲存小方塊用
+    /// </summary>
     public RectTransform[] rectSmall;
+    /// <summary>
+    /// 每顆小方塊要掉落的高度
+    /// </summary>
+    public int[] deleteHeight;
+    /// <summary>
+    /// 總刪除行數
+    /// </summary>
+    public bool[] destroy = new bool[17];
+    /// <summary>
+    /// 要刪除的方塊
+    /// </summary>
+    public List<RectTransform> destroySmall = new List<RectTransform>();
 
     /// <summary>
     /// 檢查方塊是否連線
     /// </summary>
-    private void CheckTetris()
+    private IEnumerator CheckTetris()
     {
-        rectSmall = new RectTransform[traScoreArea.childCount];                     // 指定數量跟子物件相同
-
-        for (int i = 0; i < traScoreArea.childCount; i++)                           // 利用迴圈將子物件儲存
+        for (int i = 0; i < destroy.Length; i++)                                            // 迴圈執行 17 次 - 總共 17 行
         {
-            rectSmall[i] = traScoreArea.GetChild(i).GetComponent<RectTransform>();
+            rectSmall = new RectTransform[traScoreArea.childCount];                         // 指定數量跟 方塊 子物件相同
+
+            for (int j = 0; j < traScoreArea.childCount; j++)                               // 利用迴圈將 方塊 子物件儲存
+                rectSmall[j] = traScoreArea.GetChild(j).GetComponent<RectTransform>();
+
+            // 查詢 如果 y 軸 正負 10 有幾顆 方塊
+            var small = rectSmall.Where(x => x.anchoredPosition.y > -300 + i * 40 - 10 && x.anchoredPosition.y < -300 + i * 40 + 10);
+
+            if (small.ToArray().Length == 16)                                               // 如果 持查詢結果的數量 等於 16 - 每列最多 16 科
+            {
+                destroy[i] = true;                                                          // 代表此行要刪除
+                destroySmall.AddRange(small.ToList());                                      // 將要刪除的行數加進 清單內
+            }
         }
 
-        // 檢查有幾棵位置在 -300
-        var small = rectSmall.Where(x => x.anchoredPosition.y == -300);
+        if (destroySmall.Count % 16 == 0) yield return StartCoroutine(Shine(destroySmall)); // 如果 刪除清單 數量 被 16 整除 就執行閃爍效果
 
-        if (small.ToArray().Length == 16)
+        yield return null;                                                                  // 等待
+
+        rectSmall = new RectTransform[traScoreArea.childCount];                             // 更新 指定數量跟 方塊 子物件相同
+
+        for (int i = 0; i < rectSmall.Length; i++)                                          // 利用迴圈將 方塊 子物件儲存
+            rectSmall[i] = traScoreArea.GetChild(i).GetComponent<RectTransform>();
+
+        deleteHeight = new int[traScoreArea.childCount];                                    // 更新 每顆 方塊 要掉落的高度
+        for (int i = 0; i < deleteHeight.Length; i++) deleteHeight[i] = 0;                  // 先歸零
+
+        for (int j = 0; j < destroy.Length; j++)                                            // 迴圈 執行 17 行
         {
-            RectTransform[] s = small.ToArray();
-            StartCoroutine(Shine(s));
+            if (!destroy[j]) continue;                                                      // 如果 此行 不須刪除 就繼續 執行 下一行
+
+            for (int i = 0; i < rectSmall.Length; i++)                                      // 迴圈 執行 所有 方塊 子物件
+            {
+                if (rectSmall[i].anchoredPosition.y > -300 + j * 40 - 10)                   // 每個 方塊 子物件 如果 座標 > 要刪除那行
+                {
+                    deleteHeight[i] -= 40;                                                  // 就遞減 40 單位
+                }
+            }
+            
+            destroy[j] = false;                                                             // 是否刪除 設定為 否
+        }
+
+        for (int i = 0; i < rectSmall.Length; i++)                                          // 迴圈 執行 所有 方塊 子物件
+        {
+            rectSmall[i].anchoredPosition += Vector2.up * deleteHeight[i];                  // 就往下掉 40
         }
     }
 
-    private IEnumerable Shine(RectTransform[] smalls)
+    private IEnumerator Shine(List<RectTransform> smalls)
     {
         float interval = 0.05f;
-        for (int i = 0; i < 16; i++) smalls[i].GetComponent<Image>().enabled = false;
+        for (int i = 0; i < smalls.Count; i++) smalls[i].GetComponent<Image>().enabled = false;
         yield return new WaitForSeconds(interval);
-        for (int i = 0; i < 16; i++) smalls[i].GetComponent<Image>().enabled = true;
+        for (int i = 0; i < smalls.Count; i++) smalls[i].GetComponent<Image>().enabled = true;
         yield return new WaitForSeconds(interval);
-        for (int i = 0; i < 16; i++) smalls[i].GetComponent<Image>().enabled = false;
+        for (int i = 0; i < smalls.Count; i++) smalls[i].GetComponent<Image>().enabled = false;
         yield return new WaitForSeconds(interval);
-        for (int i = 0; i < 16; i++) smalls[i].GetComponent<Image>().enabled = true;
+        for (int i = 0; i < smalls.Count; i++) smalls[i].GetComponent<Image>().enabled = true;
+        yield return new WaitForSeconds(interval);
+        for (int i = 0; i < smalls.Count; i++) Destroy(smalls[i].gameObject);
+        destroySmall.Clear();
     }
 
     #region 方法：尚未實作
