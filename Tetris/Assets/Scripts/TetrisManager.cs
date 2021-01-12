@@ -10,8 +10,6 @@ public class TetrisManager : MonoBehaviour
     public float timeFall = 1.5f;
     [Header("目前分數")]
     public int score;
-    [Header("最高分數")]
-    public int scoreHight;
     [Header("等級")]
     public int lv = 1;
     [Header("結束畫面")]
@@ -36,7 +34,21 @@ public class TetrisManager : MonoBehaviour
         new Vector2(20, 360),
         new Vector2(20, 360)
     };
+    [Header("分數判定區域")]
+    public Transform traScoreArea;
 
+    /// <summary>
+    /// 記錄所有再分數判定區域的小方塊
+    /// </summary>
+    private RectTransform[] rectSmall;
+    /// <summary>
+    /// 要刪除的列數
+    /// </summary>
+    private bool[] destroyRow = new bool[17];
+    /// <summary>
+    /// 剩下的方塊要掉落的高度
+    /// </summary>
+    private float[] downHeight;
     /// <summary>
     /// 下一顆俄羅斯方塊編號
     /// </summary>
@@ -139,7 +151,7 @@ public class TetrisManager : MonoBehaviour
                 // 否則 就恢復速度
                 else
                 {
-                    timeFall = 1.5f;
+                    timeFall = timeFllMax;
                 }
             }
             #endregion
@@ -149,7 +161,7 @@ public class TetrisManager : MonoBehaviour
             if (tetris.wallDown || tetris.smallBottom)
             {
                 SetGround();                        // 設定為地板
-                CheckTetris();                      // 檢查並開始消除判定
+                StartCoroutine(CheckTetris());      // 檢查並開始消除判定
                 StartGame();                        // 生成下一顆
                 StartCoroutine(ShakeEffect());      // 晃動效果
             }
@@ -188,7 +200,7 @@ public class TetrisManager : MonoBehaviour
         indexNext = Random.Range(0, 7);
 
         // 測試
-        // indexNext = 0;
+        //indexNext = 0;
 
         // 下一個俄羅斯方塊區域 . 取得子物件(子物件編號) . 轉為遊戲物件 . 啟動設定(顯示)
         traNextArea.GetChild(indexNext).gameObject.SetActive(true);
@@ -243,7 +255,6 @@ public class TetrisManager : MonoBehaviour
         rect.anchoredPosition = Vector2.zero;
         yield return new WaitForSeconds(interval);
     }
-    #endregion
 
     /// <summary>
     /// 快速掉落功能
@@ -260,15 +271,10 @@ public class TetrisManager : MonoBehaviour
         }
     }
 
-    [Header("分數判定區域")]
-    public Transform traScoreArea;
-
-    public RectTransform[] rectSmall;
-
     /// <summary>
     /// 檢查方塊是否連線
     /// </summary>
-    private void CheckTetris()
+    private IEnumerator CheckTetris()
     {
         rectSmall = new RectTransform[traScoreArea.childCount];                     // 指定數量跟子物件相同
 
@@ -277,18 +283,59 @@ public class TetrisManager : MonoBehaviour
             rectSmall[i] = traScoreArea.GetChild(i).GetComponent<RectTransform>();
         }
 
-        // 檢查有幾棵位置在 -300
-        var small = rectSmall.Where(x => x.anchoredPosition.y == -300);
+        int row = 17;                   //總共幾列：17
 
-        if (small.ToArray().Length == 16)
+        for (int i = 0; i < row; i++)
         {
-            RectTransform[] s = small.ToArray();
-            StartCoroutine(Shine(s));
+            float bottom = -300;        // 最底層的位置
+            float step = 40;            // 每一層的間距
+
+            // 檢查有幾棵位置在 -300 正負 10 - 避免誤差值
+            var small = rectSmall.Where(x => x.anchoredPosition.y >= bottom + step * i - 10 && x.anchoredPosition.y <= bottom + step * i + 10);
+
+            // 消除
+            if (small.ToArray().Length == 16)
+            {
+                yield return StartCoroutine(Shine(small.ToArray()));                // 等待 開始閃爍 完成
+                destroyRow[i] = true;                                               // 紀錄要刪除的列數
+                AddScore(1000);
+            }
+        }
+
+        downHeight = new float[traScoreArea.childCount];                            // 紀錄有幾顆刪除後剩下的方塊
+
+        for (int i = 0; i < downHeight.Length; i++) downHeight[i] = 0;              // 先將掉落高度歸零
+
+        // 計算每顆剩下方塊要掉落的高度
+        for (int i = 0; i < destroyRow.Length; i++)
+        {
+            if (!destroyRow[i]) continue;                                       // 如果 此列 沒有要刪除 就跳過繼續下一列
+
+            for (int j = 0; j < rectSmall.Length; j++)                          // 迴圈 執行 每一顆剩下的方塊
+            {
+                if (rectSmall[j].anchoredPosition.y > -300 + 40 * i - 10)       // 如果 此方塊 Y 大於 要刪除的列
+                {
+                    downHeight[j] -= 40;                                        // 座標 遞減 40
+                }
+            }
+
+            destroyRow[i] = false;                                               // 恢復為不刪除
+        }
+
+        // 更新小方塊的高度：往下掉
+        for (int i = 0; i < rectSmall.Length; i++)
+        {
+            rectSmall[i].anchoredPosition += Vector2.up * downHeight[i];
         }
     }
 
-    private IEnumerable Shine(RectTransform[] smalls)
+    /// <summary>
+    /// 閃爍效果，閃爍後刪除
+    /// </summary>
+    /// <param name="smalls">要閃爍與刪除的列</param>
+    private IEnumerator Shine(RectTransform[] smalls)
     {
+        // 閃爍
         float interval = 0.05f;
         for (int i = 0; i < 16; i++) smalls[i].GetComponent<Image>().enabled = false;
         yield return new WaitForSeconds(interval);
@@ -297,21 +344,50 @@ public class TetrisManager : MonoBehaviour
         for (int i = 0; i < 16; i++) smalls[i].GetComponent<Image>().enabled = false;
         yield return new WaitForSeconds(interval);
         for (int i = 0; i < 16; i++) smalls[i].GetComponent<Image>().enabled = true;
+
+        // 刪除
+        yield return new WaitForSeconds(interval);
+        for (int i = 0; i < 16; i++) Destroy(smalls[i].gameObject);
+
+        // 重新取得小方塊：避免 Missing 導致錯誤
+        yield return new WaitForSeconds(interval);
+        rectSmall = new RectTransform[traScoreArea.childCount];                     // 指定數量跟子物件相同
+
+        for (int i = 0; i < traScoreArea.childCount; i++)                           // 利用迴圈將子物件儲存
+        {
+            rectSmall[i] = traScoreArea.GetChild(i).GetComponent<RectTransform>();
+        }
     }
+    #endregion
 
     #region 方法：尚未實作
+
+    [Header("分數文字")]
+    public Text textScore;
+    [Header("等級文字")]
+    public Text textLv;
+    /// <summary>
+    /// 掉落時間最大值
+    /// </summary>
+    private float timeFllMax = 1.5f;
+
     /// <summary>
     /// 添加分數
     /// </summary>
     /// <param name="add">要添加的分數</param>
     public void AddScore(int add)
     {
+        score += add;                           // 分數累加
+        textScore.text = "分數：" + score;       // 更新介面
 
-    }
+        lv = 1 + score / 1000;                  // 等級公式
+        textLv.text = "等級：" + lv;             // 更新介面
 
-    private void GameTime()
-    {
+        timeFllMax = 1.5f - lv / 2;             // 速度提升公式
 
+        timeFllMax = Mathf.Clamp(timeFllMax, 0.1f, 99f);
+
+        timeFall = timeFllMax;
     }
 
     private void GameOver()

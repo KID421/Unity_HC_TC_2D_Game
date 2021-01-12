@@ -16663,7 +16663,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u7B49\u7D1A\uFF1A99"
+  m_Text: "\u7B49\u7D1A\uFF1A1"
 --- !u!222 &1498575137
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -19148,7 +19148,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeFall: 1.5
   score: 0
-  scoreHight: 0
   lv: 1
   objFinal: {fileID: 0}
   soundFall: {fileID: 0}
@@ -19166,7 +19165,8 @@ MonoBehaviour:
   - {x: 20, y: 360}
   - {x: 20, y: 360}
   traScoreArea: {fileID: 2004292153}
-  rectSmall: []
+  textScore: {fileID: 2036986615}
+  textLv: {fileID: 1498575136}
 --- !u!1 &1769739145
 GameObject:
   m_ObjectHideFlags: 0
@@ -21574,7 +21574,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u5206\u6578\uFF1A99999"
+  m_Text: "\u5206\u6578\uFF1A0"
 --- !u!222 &2036986616
 CanvasRenderer:
   m_ObjectHideFlags: 0
