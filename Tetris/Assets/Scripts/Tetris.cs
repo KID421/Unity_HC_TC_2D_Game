@@ -179,12 +179,11 @@ public class Tetris : MonoBehaviour
         // 偵測有己的子物件(小方塊) 就新增幾個陣列
         smallRightAll = new bool[transform.childCount];
         smallLeftAll = new bool[transform.childCount];
-
-        SettingLength();
     }
 
     private void Update()
     {
+        SettingLength();
         CheckWall();
         CheckBottom();
         CheckLeftAndRight();
