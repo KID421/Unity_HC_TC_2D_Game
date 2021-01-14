@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;       // 引用介面 API
+using UnityEngine.SceneManagement;
 using System.Linq;          // 查詢語言
 using System.Collections;   // 引用 系統.集合 API - 協同程序
 
@@ -12,11 +13,10 @@ public class TetrisManager : MonoBehaviour
     public int score;
     [Header("等級")]
     public int lv = 1;
-    [Header("結束畫面")]
-    public GameObject objFinal;
-    [Header("音效：地落、移動、消除與結束")]
+    [Header("音效：落地、移動、旋轉、消除與結束")]
     public AudioClip soundFall;
     public AudioClip soundMove;
+    public AudioClip soundRotate;
     public AudioClip soundClear;
     public AudioClip soundLose;
     [Header("下一個俄羅斯方塊區域")]
@@ -36,6 +36,16 @@ public class TetrisManager : MonoBehaviour
     };
     [Header("分數判定區域")]
     public Transform traScoreArea;
+    [Header("分數文字")]
+    public Text textScore;
+    [Header("等級文字")]
+    public Text textLv;
+    [Header("目前分數")]
+    public Text textCurrent;
+    [Header("最高分數")]
+    public Text textHeight;
+    [Header("群組物件")]
+    public CanvasGroup group;
 
     /// <summary>
     /// 記錄所有再分數判定區域的小方塊
@@ -65,24 +75,38 @@ public class TetrisManager : MonoBehaviour
     /// 是否快速落下
     /// </summary>
     private bool fastDown;
+    /// <summary>
+    /// 是否遊戲結束
+    /// </summary>
+    private bool gameOver;
+    /// <summary>
+    /// 掉落時間最大值
+    /// </summary>
+    private float timeFllMax = 1.5f;
     #endregion
 
     #region 事件
+    private AudioSource aud;
+
     // 開始事件：開始時候執行一次
     private void Start()
     {
+        aud = GetComponent<AudioSource>();
+
         RandomTetris();
     }
 
     // 更新事件：一秒執行約 60 次
     private void Update()
     {
+        if (gameOver) return;       // 如果 遊戲結束 就跳出
+
         ControlTertis();
         FastDown();
     }
     #endregion
 
-    #region 方法：實作完成
+    #region 方法
     /// <summary>
     /// 控制俄羅斯方塊
     /// </summary>
@@ -112,6 +136,7 @@ public class TetrisManager : MonoBehaviour
                 // 按下 D 或者 右鍵 往右 50 
                 if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
                 {
+                    aud.PlayOneShot(soundMove, Random.Range(0.8f, 1.2f));
                     currentTetris.anchoredPosition += new Vector2(40, 0);
                 }
             }
@@ -124,6 +149,7 @@ public class TetrisManager : MonoBehaviour
                 // 按下 D 或者 右鍵 往右 50 
                 if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
                 {
+                    aud.PlayOneShot(soundMove, Random.Range(0.8f, 1.2f));
                     currentTetris.anchoredPosition -= new Vector2(40, 0);
                 }
             }
@@ -134,6 +160,7 @@ public class TetrisManager : MonoBehaviour
             {
                 if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
                 {
+                    aud.PlayOneShot(soundRotate, Random.Range(0.8f, 1.2f));
                     // 屬性面板上面的 rotation 必須用 eulerAngles 控制
                     currentTetris.eulerAngles += new Vector3(0, 0, 90);
 
@@ -173,6 +200,8 @@ public class TetrisManager : MonoBehaviour
     /// </summary>
     private void SetGround()
     {
+        aud.PlayOneShot(soundFall, Random.Range(0.8f, 1.2f));
+
         int count = currentTetris.childCount;                       // 取得 目前 方塊 的子物件數量
 
         for (int i = 0; i < count; i++)                             // 迴圈 執行 子物件數量次數
@@ -281,6 +310,9 @@ public class TetrisManager : MonoBehaviour
         for (int i = 0; i < traScoreArea.childCount; i++)                           // 利用迴圈將子物件儲存
         {
             rectSmall[i] = traScoreArea.GetChild(i).GetComponent<RectTransform>();
+
+            float y = rectSmall[i].anchoredPosition.y;                              // 取得 方塊 Y 軸 檢查是否失敗
+            if (y >= 340 - 10 && y <= 340 + 10) StartCoroutine(GameOver());         // 檢查 Y 軸 是否介於 330 - 350 之間 (340 +- 10)
         }
 
         int row = 17;                   //總共幾列：17
@@ -296,6 +328,7 @@ public class TetrisManager : MonoBehaviour
             // 消除
             if (small.ToArray().Length == 16)
             {
+                aud.PlayOneShot(soundClear, Random.Range(0.8f, 1.2f));
                 yield return StartCoroutine(Shine(small.ToArray()));                // 等待 開始閃爍 完成
                 destroyRow[i] = true;                                               // 紀錄要刪除的列數
                 AddScore(1000);
@@ -358,51 +391,95 @@ public class TetrisManager : MonoBehaviour
             rectSmall[i] = traScoreArea.GetChild(i).GetComponent<RectTransform>();
         }
     }
-    #endregion
-
-    #region 方法：尚未實作
-
-    [Header("分數文字")]
-    public Text textScore;
-    [Header("等級文字")]
-    public Text textLv;
-    /// <summary>
-    /// 掉落時間最大值
-    /// </summary>
-    private float timeFllMax = 1.5f;
 
     /// <summary>
     /// 添加分數
     /// </summary>
     /// <param name="add">要添加的分數</param>
-    public void AddScore(int add)
+    private void AddScore(int add)
     {
-        score += add;                           // 分數累加
-        textScore.text = "分數：" + score;       // 更新介面
+        score += add;                                       // 分數累加
+        textScore.text = "分數：" + score;
 
-        lv = 1 + score / 1000;                  // 等級公式
-        textLv.text = "等級：" + lv;             // 更新介面
+        lv = 1 + score / 1000;                              // 等級公式
+        textLv.text = "等級：" + lv;
 
-        timeFllMax = 1.5f - lv / 2;             // 速度提升公式
-
-        timeFllMax = Mathf.Clamp(timeFllMax, 0.1f, 99f);
-
+        timeFllMax = 1.5f - lv / 10f;                       // 速度提升公式
+        timeFllMax = Mathf.Clamp(timeFllMax, 0.1f, 99f);    // 夾住
         timeFall = timeFllMax;
     }
 
-    private void GameOver()
-    {
+    
 
+    /// <summary>
+    /// 遊戲結束
+    /// </summary>
+    private IEnumerator GameOver()
+    {
+        if (!gameOver)
+        {
+            aud.PlayOneShot(soundLose, Random.Range(0.8f, 1.2f));
+            
+            gameOver = true;                        // 遊戲結束
+
+            textCurrent.text = "目前分數：" + score;
+
+            // 如果 分數 > 本機端紀錄的 最高分數
+            if (score > PlayerPrefs.GetInt("最高分數"))
+            {
+                // 更新 本機端紀錄的 最高分數 與 介面
+                PlayerPrefs.SetInt("最高分數", score);
+                textHeight.text = "最高分數：" + score;
+            }
+            // 否則 更新最高分數為 本機端紀錄的 最高分數
+            else textHeight.text = "最高分數：" + PlayerPrefs.GetInt("最高分數");
+
+            float a = group.alpha;
+
+            while (a < 1)
+            {
+                a += 0.02f;
+                group.alpha = a;
+                yield return new WaitForSeconds(0.02f);
+            }
+
+            group.interactable = true;
+            group.blocksRaycasts = true;
+
+            StopAllCoroutines();                    // 停止所有協程
+        }
     }
 
+    /// <summary>
+    /// 重新遊戲
+    /// </summary>
     public void ReplayGame()
     {
-
+        Invoke("DelayReplayGame", 0.6f);
     }
 
+    /// <summary>
+    /// 延遲重新遊戲
+    /// </summary>
+    private void DelayReplayGame()
+    {
+        SceneManager.LoadScene("遊戲場景");
+    }
+
+    /// <summary>
+    /// 離開遊戲
+    /// </summary>
     public void QuitGame()
     {
+        Invoke("DelayQuitGame", 0.6f);
+    }
 
+    /// <summary>
+    /// 延遲離開遊戲
+    /// </summary>
+    private void DelayQuitGame()
+    {
+        Application.Quit();
     }
     #endregion
 }
