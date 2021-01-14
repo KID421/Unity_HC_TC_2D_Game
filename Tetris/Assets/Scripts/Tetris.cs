@@ -70,6 +70,38 @@ public class Tetris : MonoBehaviour
     #endregion
 
     #region 事件
+    private void SettingLength()
+    {
+        #region 判定牆壁與地板
+        // 將浮點數角度 轉為 整數 - 去小數點
+        int z = (int)transform.eulerAngles.z;
+
+        if (z == 0 || z == 180)
+        {
+            // 儲存目前長度
+            length = length0;
+            
+            // 繪製向下線條
+            lengthDown = length90;
+
+            // 繪製旋轉射線
+            lengthRotateR = lengthRotate0r;
+            lengthRotateL = lengthRotate0l;
+        }
+        else if (z == 90 || z == 270)
+        {
+            // 儲存目前長度
+            length = length90;
+            // 繪製向下線條
+            lengthDown = length0;
+
+            // 繪製旋轉射線
+            lengthRotateR = lengthRotate90r;
+            lengthRotateL = lengthRotate90l;
+        }
+        #endregion
+    }
+
     /// <summary>
     /// 繪製圖示
     /// </summary>
@@ -147,6 +179,8 @@ public class Tetris : MonoBehaviour
         // 偵測有己的子物件(小方塊) 就新增幾個陣列
         smallRightAll = new bool[transform.childCount];
         smallLeftAll = new bool[transform.childCount];
+
+        SettingLength();
     }
 
     private void Update()
